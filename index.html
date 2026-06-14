@@ -134,11 +134,16 @@
                     <input type="number" id="record-next-mileage" placeholder="bijv. 85000">
                 </div>
             </div>
-            <div class="form-group full-width">
-                <label>Onderdelen (gescheiden door komma)</label>
-                <input type="text" id="record-parts" placeholder="bijv. Oliefilter, Airco filter, Remvloeistof">
-            </div>
-            <button class="btn-primary full-width" onclick="saveRecord()" style="margin-top:16px;">Record Opslaan</button>
+                <div class="form-group full-width">
+                    <label>Onderdelen (gescheiden door komma)</label>
+                    <input type="text" id="record-parts" placeholder="bijv. Oliefilter, Airco filter, Remvloeistof">
+                </div>
+                <div class="form-group full-width">
+                    <label>Foto's / Video's (max 5 bestanden)</label>
+                    <input type="file" id="record-files" accept="image/*,video/*" multiple>
+                    <small class="text-muted">Upload foto's of video's van het onderhoud (max 10MB per bestand)</small>
+                </div>
+                <button class="btn-primary full-width" onclick="saveRecord()" style="margin-top:16px;">Record Opslaan</button>
         </div>
     </div>
 

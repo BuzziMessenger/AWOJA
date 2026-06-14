@@ -443,7 +443,63 @@ async function saveRecord() {
     const type = document.getElementById('record-type').value;
     const title = document.getElementById('record-title').value.trim();
     if (!title) { showToast('Vul een titel in', 'error'); return; }
-    const data = { kenteken, type, title, description: document.getElementById('record-description').value.trim(), cost: document.getElementById('record-cost').value, date: document.getElementById('record-date').value, mileage: document.getElementById('record-mileage').value, garage: document.getElementById('record-garage').value.trim(), nextServiceDate: document.getElementById('record-next-date').value, nextServiceMileage: document.getElementById('record-next-mileage').value, parts: document.getElementById('record-parts').value.split(',').map(p=>p.trim()).filter(Boolean) };
+
+    // Handle file uploads
+    const fileInput = document.getElementById('record-files');
+    const files = fileInput.files;
+    let mediaUrls = [];
+
+    if (files.length > 0) {
+        showLoading(true);
+        try {
+            // Upload files to backend
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            const uploadResponse = await fetch(`${CONFIG.backend}/api/upload`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: formData
+            });
+
+            if (!uploadResponse.ok) {
+                const error = await uploadResponse.json();
+                showToast(error.error || 'Fout bij uploaden van bestanden', 'error');
+                showLoading(false);
+                return;
+            }
+
+            const uploadResult = await uploadResponse.json();
+            mediaUrls = uploadResult.urls || [];
+        } catch (error) {
+            console.error('Upload error:', error);
+            showToast('Fout bij uploaden van bestanden', 'error');
+            showLoading(false);
+            return;
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    const data = {
+        kenteken,
+        type,
+        title,
+        description: document.getElementById('record-description').value.trim(),
+        cost: document.getElementById('record-cost').value,
+        date: document.getElementById('record-date').value,
+        mileage: document.getElementById('record-mileage').value,
+        garage: document.getElementById('record-garage').value.trim(),
+        nextServiceDate: document.getElementById('record-next-date').value,
+        nextServiceMileage: document.getElementById('record-next-mileage').value,
+        parts: document.getElementById('record-parts').value.split(',').map(p=>p.trim()).filter(Boolean),
+        media: mediaUrls
+    };
+
     const r = await api('/api/records', 'POST', data);
     if (r?.error) { showToast(r.error, 'error'); return; }
     closeRecordModal();
