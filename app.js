@@ -85,26 +85,30 @@ async function api(endpoint, method = 'GET', body = null) {
     if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
 
     // Show loading indicator
-    showLoading(true);
+showLoading(true);
 
     try {
         const r = await fetch(`${CONFIG.backend}${endpoint}`, opts);
+        
         if (!r.ok) {
-            const err = await r.json().catch(() => ({ error: `HTTP ${r.status}` }));
-            console.log('Backend error response:', err); // Debug log
-            showToast(err.error || `Fout ${r.status}: ${r.statusText}`, 'error');
+            const err = await r.json().catch(() => ({}));
+            console.log('Backend error response:', err);
+            
+            // Jouw nieuwe verbeterde regel
+            const errorMessage = err.error || err.message || `Fout ${r.status}: ${r.statusText}`;
+            
+            showToast(errorMessage, 'error');
             return err;
         }
         return await r.json();
     } catch (e) {
         console.error('API Error:', e);
-        showToast(`Kan geen verbinding maken met de server (${CONFIG.backend})`, 'error');
+        showToast(`Kan geen verbinding maken met de server`, 'error');
         return null;
     } finally {
-        // Hide loading indicator
+        // Zorg dat deze er altijd staat om je loading-icoon te stoppen
         showLoading(false);
     }
-}
 
 async function lookupKenteken(k) { const r = await fetchRDW(CONFIG.api.voertuigkenmerken, { kenteken: cleanKenteken(k), '$limit': 1 }); return r?.[0] || null; }
 async function lookupFuelData(k) { try { const r = await fetchRDW(CONFIG.api.brandstof, { kenteken: cleanKenteken(k), '$limit': 5 }); return r?.length ? r : null; } catch { return null; } }
