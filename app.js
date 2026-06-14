@@ -91,13 +91,14 @@ async function api(endpoint, method = 'GET', body = null) {
         const r = await fetch(`${CONFIG.backend}${endpoint}`, opts);
         if (!r.ok) {
             const err = await r.json().catch(() => ({ error: `HTTP ${r.status}` }));
-            showToast(err.error || `Fout ${r.status}`, 'error');
+            console.log('Backend error response:', err); // Debug log
+            showToast(err.error || `Fout ${r.status}: ${r.statusText}`, 'error');
             return err;
         }
         return await r.json();
     } catch (e) {
-        showToast(`Kan geen verbinding maken met de server (${CONFIG.backend})`, 'error');
         console.error('API Error:', e);
+        showToast(`Kan geen verbinding maken met de server (${CONFIG.backend})`, 'error');
         return null;
     } finally {
         // Hide loading indicator
