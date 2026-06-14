@@ -13,8 +13,8 @@
 
 const CONFIG = {
     api: { base: 'https://opendata.rdw.nl', voertuigkenmerken: '/resource/m9d7-ebf2.json', brandstof: '/resource/8h6h-sast.json' },
-    // HARDCODED naar Render - werkt op elk domein (vercel.app, awoja.nl, etc.)
-    backend: 'https://awoja.onrender.com',
+    // Dynamische backend URL - werkt zowel lokaal als op Render
+    backend: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://awoja.onrender.com',
     timeout: 10000,
 };
 
