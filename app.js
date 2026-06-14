@@ -14,7 +14,7 @@
 const CONFIG = {
     api: { base: 'https://opendata.rdw.nl', voertuigkenmerken: '/resource/m9d7-ebf2.json', brandstof: '/resource/8h6h-sast.json' },
     // HARDCODED naar Render - werkt op elk domein (vercel.app, awoja.nl, etc.)
-    backend: 'https://awojameta.onrender.com',
+    backend: 'https://awoja.onrender.com',
     timeout: 10000,
 };
 
@@ -708,7 +708,7 @@ function displayVideoContent(vehicleData) {
 
 function displayAllVehicleInformation(vehicleData) {
     // Display basic info
-    displayVehicleInfo(vehicleData);
+    displayResults(vehicleData);
 
     // Display all new sections
     displayOwnerHistory(vehicleData);
