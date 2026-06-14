@@ -148,18 +148,36 @@ function toggleUserDropdown() { const d = document.getElementById('user-dropdown
 async function handleLogin() {
     const login = document.getElementById('login-email').value.trim(), password = document.getElementById('login-password').value;
     if (!login || !password) { showToast('Vul alle velden in', 'error'); return; }
-    const r = await api('/api/auth/login', 'POST', { login, password });
-    if (r?.error) { showToast(r.error, 'error'); return; }
-    if (r?.token) { authToken = r.token; currentUser = r.user; localStorage.setItem('awoja-token', r.token); updateAuthUI(); closeAuthModal(); showToast(`Welkom terug, ${r.user.username}!`); loadDashboard(); }
+
+    // Show loading indicator
+    showLoading(true);
+
+    try {
+        const r = await api('/api/auth/login', 'POST', { login, password });
+        if (r?.error) { showToast(r.error, 'error'); return; }
+        if (r?.token) { authToken = r.token; currentUser = r.user; localStorage.setItem('awoja-token', r.token); updateAuthUI(); closeAuthModal(); showToast(`Welkom terug, ${r.user.username}!`); loadDashboard(); }
+    } finally {
+        // Hide loading indicator
+        showLoading(false);
+    }
 }
 
 async function handleRegister() {
     const username = document.getElementById('reg-username').value.trim(), email = document.getElementById('reg-email').value.trim(), password = document.getElementById('reg-password').value, fullName = document.getElementById('reg-fullname').value.trim(), userType = document.getElementById('reg-usertype').value;
     const garageName = document.getElementById('reg-garagename')?.value.trim() || '';
     if (!username || !email || !password) { showToast('Vul alle verplichte velden in', 'error'); return; }
-    const r = await api('/api/auth/register', 'POST', { username, email, password, fullName, userType, garageName });
-    if (r?.error) { showToast(r.error, 'error'); return; }
-    if (r?.token) { authToken = r.token; currentUser = r.user; localStorage.setItem('awoja-token', r.token); updateAuthUI(); closeAuthModal(); showToast(`Welkom bij AWOJA, ${r.user.username}!`); }
+
+    // Show loading indicator
+    showLoading(true);
+
+    try {
+        const r = await api('/api/auth/register', 'POST', { username, email, password, fullName, userType, garageName });
+        if (r?.error) { showToast(r.error, 'error'); return; }
+        if (r?.token) { authToken = r.token; currentUser = r.user; localStorage.setItem('awoja-token', r.token); updateAuthUI(); closeAuthModal(); showToast(`Welkom bij AWOJA, ${r.user.username}!`); }
+    } finally {
+        // Hide loading indicator
+        showLoading(false);
+    }
 }
 
 function handleLogout() { authToken = null; currentUser = null; localStorage.removeItem('awoja-token'); updateAuthUI(); showToast('Uitgelogd'); showSection('home'); document.getElementById('user-dropdown').style.display = 'none'; }
