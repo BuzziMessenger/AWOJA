@@ -83,7 +83,7 @@ async function api(endpoint, method = 'GET', body = null) {
     const opts = { method, headers: {} };
     if (authToken) opts.headers['Authorization'] = `Bearer ${authToken}`;
     if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-
+}
     // Show loading indicator
 showLoading(true);
 
@@ -91,12 +91,12 @@ showLoading(true);
         const r = await fetch(`${CONFIG.backend}${endpoint}`, opts);
         
         if (!r.ok) {
-            const err = await r.json().catch(() => ({}));
+            const err = await r.json().catch(() => ({ error: `HTTP ${r.status}` }));
             console.log('Backend error response:', err);
-            
+
             // Jouw nieuwe verbeterde regel
-            const errorMessage = err.error || err.message || `Fout ${r.status}: ${r.statusText}`;
-            
+            const errorMessage = err.error || err.message || `Fout ${r.status}: ${r.statusText || 'Onbekende fout'}`;
+
             showToast(errorMessage, 'error');
             return err;
         }
