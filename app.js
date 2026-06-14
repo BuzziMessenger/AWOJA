@@ -83,6 +83,10 @@ async function api(endpoint, method = 'GET', body = null) {
     const opts = { method, headers: {} };
     if (authToken) opts.headers['Authorization'] = `Bearer ${authToken}`;
     if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+
+    // Show loading indicator
+    showLoading(true);
+
     try {
         const r = await fetch(`${CONFIG.backend}${endpoint}`, opts);
         if (!r.ok) {
@@ -95,6 +99,9 @@ async function api(endpoint, method = 'GET', body = null) {
         showToast(`Kan geen verbinding maken met de server (${CONFIG.backend})`, 'error');
         console.error('API Error:', e);
         return null;
+    } finally {
+        // Hide loading indicator
+        showLoading(false);
     }
 }
 
@@ -111,6 +118,13 @@ function showToast(msg, type = 'success') {
     t.style.display = 'flex';
     clearTimeout(t._t);
     t._t = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+function showLoading(show = true) {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = show ? 'flex' : 'none';
+    }
 }
 
 function toggleTheme() { const h = document.documentElement, c = h.getAttribute('data-theme'), n = c === 'dark' ? 'light' : 'dark'; h.setAttribute('data-theme', n); localStorage.setItem('awoja-theme', n); }
