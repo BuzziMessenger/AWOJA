@@ -1,0 +1,6 @@
+node_modules/  
+awoja-data.json  
+*.log  
+.env  
+.DS_Store  
+.vscode/ 

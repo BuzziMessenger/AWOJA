@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWOJA - Alles Weten Over Je Auto</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Toast -->
+    <div id="toast" class="toast" style="display:none;"><span id="toast-message"></span></div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeAuthModal()">
+        <div class="modal">
+            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            <!-- Login Form -->
+            <div id="auth-login" class="auth-form">
+                <h2>Inloggen</h2>
+                <p class="auth-subtitle">Log in op je AWOJA account</p>
+                <div class="form-group">
+                    <label>Email of gebruikersnaam</label>
+                    <input type="text" id="login-email" placeholder="email@voorbeeld.nl" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Wachtwoord</label>
+                    <input type="password" id="login-password" placeholder="Wachtwoord" autocomplete="current-password">
+                </div>
+                <button class="btn-primary full-width" onclick="handleLogin()">Inloggen</button>
+                <p class="auth-switch">Nog geen account? <a href="#" onclick="showAuthForm('register')">Registreren</a></p>
+            </div>
+            <!-- Register Form -->
+            <div id="auth-register" class="auth-form" style="display:none;">
+                <h2>Account Aanmaken</h2>
+                <p class="auth-subtitle">Registreer om je auto's bij te houden</p>
+                <div class="form-group">
+                    <label>Gebruikersnaam</label>
+                    <input type="text" id="reg-username" placeholder="gebruikersnaam">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="reg-email" placeholder="email@voorbeeld.nl">
+                </div>
+                <div class="form-group">
+                    <label>Volledige naam</label>
+                    <input type="text" id="reg-fullname" placeholder="Jan de Vries">
+                </div>
+                <div class="form-group">
+                    <label>Wachtwoord</label>
+                    <input type="password" id="reg-password" placeholder="Minimaal 6 tekens" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label>Account type</label>
+                    <select id="reg-usertype">
+                        <option value="owner">Auto-eigenaar</option>
+                        <option value="garage">Garage / Bedrijf</option>
+                        <option value="both">Beide</option>
+                    </select>
+                </div>
+                <div id="garage-fields" class="auth-form" style="display:none;">
+                    <div class="form-group">
+                        <label>Bedrijfsnaam</label>
+                        <input type="text" id="reg-garagename" placeholder="Garage naam">
+                    </div>
+                </div>
+                <button class="btn-primary full-width" onclick="handleRegister()">Registreren</button>
+                <p class="auth-switch">Al een account? <a href="#" onclick="showAuthForm('login')">Inloggen</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Record Modal -->
+    <div id="record-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeRecordModal()">
+        <div class="modal modal-lg">
+            <button class="modal-close" onclick="closeRecordModal()">&times;</button>
+            <h2>Onderhoud / Reparatie Toevoegen</h2>
+            <p class="auth-subtitle">Voeg een nieuw record toe voor <strong id="record-kenteken-display"></strong></p>
+            <input type="hidden" id="record-kenteken">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Type *</label>
+                    <select id="record-type">
+                        <option value="onderhoud">Onderhoud</option>
+                        <option value="reparatie">Reparatie</option>
+                        <option value="apk">APK Keuring</option>
+                        <option value="banden">Banden</option>
+                        <option value="beurt">Grote beurt</option>
+                        <option value="schade">Schadeherstel</option>
+                        <option value="anders">Anders</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Titel *</label>
+                    <input type="text" id="record-title" placeholder="bijv. Olie verversen">
+                </div>
+                <div class="form-group">
+                    <label>Datum</label>
+                    <input type="date" id="record-date">
+                </div>
+                <div class="form-group">
+                    <label>Kilometerstand</label>
+                    <input type="number" id="record-mileage" placeholder="bijv. 75000">
+                </div>
+                <div class="form-group">
+                    <label>Kosten (€)</label>
+                    <input type="number" step="0.01" id="record-cost" placeholder="bijv. 150.00">
+                </div>
+                <div class="form-group">
+                    <label>Garage / Uitvoerder</label>
+                    <input type="text" id="record-garage" placeholder="bijv. Garage Jansen">
+                </div>
+            </div>
+            <div class="form-group full-width">
+                <label>Beschrijving</label>
+                <textarea id="record-description" rows="3" placeholder="Details over de uitgevoerde werkzaamheden..."></textarea>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Volgende onderhoudsdatum</label>
+                    <input type="date" id="record-next-date">
+                </div>
+                <div class="form-group">
+                    <label>Volgende kilometerstand</label>
+                    <input type="number" id="record-next-mileage" placeholder="bijv. 85000">
+                </div>
+            </div>
+            <div class="form-group full-width">
+                <label>Onderdelen (gescheiden door komma)</label>
+                <input type="text" id="record-parts" placeholder="bijv. Oliefilter, Airco filter, Remvloeistof">
+            </div>
+            <button class="btn-primary full-width" onclick="saveRecord()" style="margin-top:16px;">Record Opslaan</button>
+        </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div id="video-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeVideoModal()">
+        <div class="modal modal-lg">
+            <button class="modal-close" onclick="closeVideoModal()">&times;</button>
+            <h2 id="video-title">Auto Video</h2>
+            <div class="video-container">
+                <iframe id="video-iframe" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" onclick="showSection('home')">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M5 11L6.5 6.5C6.8 5.6 7.6 5 8.5 5H15.5C16.4 5 17.2 5.6 17.5 6.5L19 11M5 11H19M5 11L4 17C3.8 18.1 4.7 19 5.8 19H18.2C19.3 19 20.2 18.1 20 17L19 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="14.5" r="1.5" stroke="currentColor" stroke-width="1.5"/><circle cx="16.5" cy="14.5" r="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                    </div>
+                    <div class="logo-text"><span class="logo-abbr">AWOJA</span><span class="logo-full">Alles Weten Over Je Auto</span></div>
+                </div>
+                <nav class="nav">
+                    <a href="#" class="nav-link active" onclick="showSection('home')">Zoeken</a>
+                    <a href="#" class="nav-link" onclick="showSection('compare')">Vergelijken</a>
+                    <a href="#" class="nav-link" id="nav-dashboard" style="display:none;" onclick="showSection('dashboard')">Mijn Auto's</a>
+                    <a href="#" class="nav-link" onclick="showSection('about')">Over Ons</a>
+                </nav>
+                <div class="header-actions">
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Thema">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2"/></svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+                    <div id="auth-buttons">
+                        <button class="btn-outline" onclick="openAuthModal('login')">Inloggen</button>
+                        <button class="btn-primary" onclick="openAuthModal('register')">Registreren</button>
+                    </div>
+                    <div id="user-menu" style="display:none;">
+                        <button class="user-avatar" onclick="toggleUserDropdown()">
+                            <span id="user-initial"></span>
+                        </button>
+                        <div id="user-dropdown" class="dropdown" style="display:none;">
+                            <div class="dropdown-header">
+                                <strong id="dropdown-name"></strong>
+                                <small id="dropdown-email"></small>
+                            </div>
+                            <a class="dropdown-item" onclick="showSection('dashboard')">🚗 Mijn Auto's</a>
+                            <a class="dropdown-item" onclick="handleLogout()">🚪 Uitloggen</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- ===== HOME ===== -->
+        <div id="section-home">
+            <section class="hero">
+                <div class="hero-bg"></div>
+                <div class="container">
+                    <div class="hero-content">
+                        <h1 class="hero-title">
+                            <span class="hero-title-sub">Gekoppeld aan het officiële RDW register</span>
+                            <span class="hero-title-big">Alles Weten<br><span class="accent">Over Je Auto</span></span>
+                        </h1>
+                        <p class="hero-description">Voer je kenteken in en ontdek alle voertuiggegevens, onderhoudshistorie en meer uit de RDW-database.</p>
+                        <div class="search-container">
+                            <div class="search-box">
+                                <div class="kenteken-plate-input">
+                                    <span class="plate-nl">NL</span>
+                                    <input type="text" id="kenteken-input" class="kenteken-plate-field" placeholder="XX-999-X" maxlength="6" autocomplete="off">
+                                </div>
+                                <button id="search-btn" class="search-btn" onclick="searchKenteken()"><span class="btn-text">Zoek</span></button>
+                            </div>
+                            <p class="search-hint">Voorbeeld: AB123C, 12-AB-1</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div id="loading" class="loading-container" style="display:none;"><div class="container"><div class="loading-card"><div class="loading-spinner"></div><h3>Gegevens ophalen...</h3><p>Even geduld, we halen de gegevens op bij de RDW.</p></div></div></div>
+            <div id="error" class="error-container" style="display:none;"><div class="container"><div class="error-card"><div class="error-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M15 9L9 15M9 9L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3 id="error-title">Fout</h3><p id="error-message"></p></div></div></div>
+            <div id="results" class="results-container" style="display:none;">
+                <div class="container">
+                    <div class="action-bar" id="action-bar" style="display:none;">
+                        <div class="results-title">VOERTUIGGEGEVENS</div>
+                        <div class="action-bar-right">
+                            <button class="action-btn" onclick="openRecordModal()" title="Onderhoud toevoegen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span>Record</span></button>
+                            <button class="action-btn" onclick="generatePDFReport()" title="Rapport downloaden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>PDF</span></button>
+                            <button class="action-btn" onclick="shareKenteken()" title="Delen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg><span>Delen</span></button>
+                            <button class="action-btn" onclick="copyInfo()" title="Kopieer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Kopieer</span></button>
+                        </div>
+                    </div>
+                    <div class="vehicle-header" id="vehicle-header"></div>
+                    <div class="vehicle-stats" id="vehicle-stats" style="display:none;"></div>
+                    <!-- Maintenance Summary -->
+                    <div id="maintenance-summary" style="display:none;"></div>
+                    <div class="info-grid" id="info-grid"></div>
+                    <div id="fuel-section" class="fuel-section" style="display:none;"></div>
+                    <!-- QR Code Section -->
+                    <div id="qr-section" style="display:none;"></div>
+                    <!-- Maintenance Timeline -->
+                    <div id="maintenance-section" style="display:none;"></div>
+
+                    <!-- New Sections -->
+                    <div id="owner-history-section" style="display:none;">
+                        <h3><i class="fas fa-users"></i> Eigenaren Geschiedenis</h3>
+                        <div id="owner-history-content"></div>
+                    </div>
+
+                    <div id="technical-specs-section" style="display:none;">
+                        <h3><i class="fas fa-cog"></i> Technische Specificaties</h3>
+                        <div id="technical-specs-content"></div>
+                    </div>
+
+                    <div id="apk-history-section" style="display:none;">
+                        <h3><i class="fas fa-clipboard-check"></i> APK Geschiedenis</h3>
+                        <div id="apk-history-content"></div>
+                    </div>
+
+                    <div id="maintenance-instructions-section" style="display:none;">
+                        <h3><i class="fas fa-tools"></i> Onderhoudsinstructies</h3>
+                        <div id="maintenance-instructions-content"></div>
+                    </div>
+
+                    <div id="video-section" style="display:none;">
+                        <h3><i class="fas fa-video"></i> Video's over deze auto</h3>
+                        <div id="video-content"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="recent-section" class="recent-section" style="display:none;"><div class="container"><div class="section-header-row"><h2 class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Laatst gezocht</h2><button class="clear-btn" onclick="clearHistory()">Wis</button></div><div class="recent-grid" id="recent-grid"></div></div></div>
+            <section class="features" id="features-section"><div class="container"><div class="features-header"><h2>Waarom AWOJA?</h2><p>Hét platform voor voertuiggeschiedenis en onderhoud</p></div><div class="features-grid">
+                <div class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="2"/></svg></div><h3>RDW Gegevens</h3><p>Directe toegang tot alle officiële voertuiggegevens.</p></div>
+                <div class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2"/></svg></div><h3>Onderhoud Logboek</h3><p>Bewaar alle reparaties, onderhoud en kosten per voertuig.</p></div>
+                <div class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg></div><h3>Transparantie</h3><p>Deel de volledige historie met potentiële kopers.</p></div>
+                <div class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg></div><h3>Garage Integratie</h3><p>Garages kunnen direct onderhoudsrecords toevoegen.</p></div>
+            </div></div></section>
+
+            <!-- CTA Section -->
+            <section class="cta-section">
+                <h2>Gratis account aanmaken</h2>
+                <p>Sla kentekens op, voeg onderhoud toe en deel de volledige historie. Geschikt voor garages en particulieren.</p>
+                <button class="cta-btn" onclick="openAuthModal('register')">Registreer nu — het is gratis</button>
+            </section>
+        </div>
+
+        <!-- ===== COMPARE ===== -->
+        <div id="section-compare" class="page-section" style="display:none;"><div class="container"><div class="page-header"><h1>Voertuigen Vergelijken</h1><p>Vul twee kentekens in</p></div>
+            <div class="compare-inputs"><div class="compare-input-group"><label>Kenteken 1</label><div class="search-box compact"><input type="text" id="compare-input-1" class="kenteken-input" placeholder="Kenteken 1" maxlength="8" autocomplete="off"></div></div><div class="compare-vs">VS</div><div class="compare-input-group"><label>Kenteken 2</label><div class="search-box compact"><input type="text" id="compare-input-2" class="kenteken-input" placeholder="Kenteken 2" maxlength="8" autocomplete="off"></div></div><button class="search-btn compare-btn" onclick="compareVehicles()"><span class="btn-text">Vergelijk</span></button></div>
+            <div id="compare-loading" style="display:none;"><div class="loading-card"><div class="loading-spinner"></div><h3>Vergelijken...</h3></div></div>
+            <div id="compare-results" class="compare-results" style="display:none;"></div>
+            <div id="compare-error" style="display:none;"><div class="error-card"><h3 id="compare-error-title">Fout</h3><p id="compare-error-message"></p></div></div>
+        </div></div>
+
+        <!-- ===== DASHBOARD ===== -->
+        <div id="section-dashboard" class="page-section" style="display:none;"><div class="container"><div class="page-header"><h1>Mijn Dashboard</h1><p>Beheer je voertuigen en onderhoud</p></div>
+            <div class="dashboard-grid">
+                <div class="dash-card">
+                    <h3>🚗 Mijn Voertuigen</h3>
+                    <div class="form-row" style="margin:16px 0;"><input type="text" id="add-vehicle-kenteken" placeholder="Kenteken toevoegen" maxlength="8" class="kenteken-input" style="font-size:16px;letter-spacing:2px;"><button class="btn-primary" onclick="addMyVehicle()">Toevoegen</button></div>
+                    <div id="my-vehicles-list"></div>
+                </div>
+                <div class="dash-card">
+                    <h3>📊 Garage Overzicht</h3>
+                    <p class="text-muted">Alle door jou toegevoegde records:</p>
+                    <div id="garage-records-list"></div>
+                </div>
+            </div>
+        </div></div>
+
+        <!-- ===== ABOUT ===== -->
+        <div id="section-about" class="page-section" style="display:none;"><div class="container"><div class="page-header"><h1>Over AWOJA</h1><p>Alles Weten Over Je Auto</p></div>
+            <div class="about-content">
+                <div class="about-card"><h3>Wat is AWOJA?</h3><p>AWOJA is hét platform voor volledige voertuigtransparantie. Zoek voertuiggegevens via de RDW, houd onderhoud bij, en deel de volledige historie met potentiële kopers. Garages kunnen direct hun onderhoudsrecords toevoegen.</p></div>
+                <div class="about-card"><h3>Waarom AWOJA?</h3><p>Bij het kopen van een tweedehands auto weet je nooit wat de geschiedenis is. AWOJA maakt hier een einde aan door een transparant, open platform te bieden waar onderhoud, reparaties en kosten bijgehouden worden per kenteken.</p></div>
+                <div class="about-card"><h3>Disclaimer</h3><p>Gegevens komen uit de RDW Open Data database. AWOJA streeft naar juistheid maar kan dit niet garanderen. Raadpleeg voor officiële gegevens altijd de RDW.</p></div>
+            </div>
+        </div></div>
+    </main>
+
+    <footer class="footer"><div class="container"><div class="footer-content"><div class="footer-brand"><span class="footer-logo">AWOJA</span><span class="footer-tagline">Alles Weten Over Je Auto</span></div><div class="footer-info"><p>Data: <a href="https://opendata.rdw.nl" target="_blank">RDW Open Data</a></p><p class="footer-copyright">&copy; 2024 AWOJA</p></div></div></div></footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
